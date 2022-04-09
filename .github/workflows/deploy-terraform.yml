@@ -26,12 +26,13 @@ jobs:
           minikube version: 'v1.25.2'
           kubernetes version: 'v1.23.0'
           github token: ${{ secrets.TOKEN }}
+      - name: Install socat
+        run: sudo apt install socat
       - name: Try cluster
         run: kubectl get pods -A
-      # - name: Terraform deploy
-      #   run: terraform apply --auto-approve
-      # - name: Terraform test
-      #   run: cd test && go test -v
-      # - name: Terraform Destroy
-      #   run: terraform destroy --auto-approve
-        
+      - name: Terraform deploy
+        run: terraform apply --auto-approve
+      - name: Terraform test
+        run: cd test && go test -v
+      - name: Terraform Destroy
+        run: terraform destroy --auto-approve
