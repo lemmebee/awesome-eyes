@@ -12,39 +12,49 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type deploymentTest struct {
-	namespace   string
-	kubeOptions *k8s.KubectlOptions
-}
+var namespace string = "monitoring"
+var kubeOptions *k8s.KubectlOptions = k8s.NewKubectlOptions("", "", namespace)
 
-func awaitPrometheusPods(t *testing.T, kubeOptions *k8s.KubectlOptions) string {
+// Setup a TLS configuration to submit with the helper, a blank struct is acceptable
+var tlsConfig tls.Config = tls.Config{}
 
-	var promPod string
+// Returns pod name
+func awaitPods(t *testing.T, kubeOptions *k8s.KubectlOptions, filter string) string {
+	var podName string
 
-	pods := k8s.ListPods(t, kubeOptions, v1.ListOptions{LabelSelector: "app=prometheus"})
+	pods := k8s.ListPods(t, kubeOptions, v1.ListOptions{FieldSelector: "status.phase=Running"})
 
 	for _, pod := range pods {
 
+		// Await all deployed pods to be available and ready
 		k8s.WaitUntilPodAvailable(t, kubeOptions, pod.Name, 60, 1*time.Second)
 
-		// Should get prometheus-server pod name
-		if strings.Contains(pod.Name, "server") {
-			promPod := pod.Name
-			return promPod
+		if strings.Contains(pod.Name, filter) {
+			podName := pod.Name
+			return podName
 		}
 	}
-	return promPod
+
+	return podName
 }
 
-func awaitPrometheusServices(t *testing.T, kubeOptions *k8s.KubectlOptions) {
+// Returns service name
+func awaitServices(t *testing.T, kubeOptions *k8s.KubectlOptions, filter string) string {
+	var serviceName string
 
-	services := k8s.ListServices(t, kubeOptions, v1.ListOptions{LabelSelector: "app=prometheus"})
+	services := k8s.ListServices(t, kubeOptions, v1.ListOptions{FieldSelector: "metadata.namespace=monitoring"})
 
 	for _, service := range services {
 
+		// Await all deployed services to be available and ready
 		k8s.WaitUntilServiceAvailable(t, kubeOptions, service.Name, 60, 1*time.Second)
 
+		if strings.Contains(service.Name, filter) {
+			serviceName := service.Name
+			return serviceName
+		}
 	}
+	return serviceName
 }
 
 func verifyPrometheusWelcomePage(statusCode int, body string) bool {
@@ -55,27 +65,26 @@ func verifyPrometheusWelcomePage(statusCode int, body string) bool {
 	return strings.Contains(body, `<title>Prometheus Time Series Collection and Processing Server</title>`)
 }
 
+func verifyGrafanaWelcomePage(statusCode int, body string) bool {
+	if statusCode != 200 {
+		return false
+	}
+
+	return strings.Contains(body, `<title>Grafana</title>`)
+}
+
 func TestPrometheusDeployment(t *testing.T) {
 	t.Parallel()
 
-	namespace := "monitoring"
+	var filter string = "server"
 
-	kubeOptions := k8s.NewKubectlOptions("", "", namespace)
+	prometheusPod := awaitPods(t, kubeOptions, filter)
 
-	// Wait for pods to be ready and store prometheus server pod name
-	promPodName := awaitPrometheusPods(t, kubeOptions)
+	awaitServices(t, kubeOptions, filter)
 
-	// Wait for services to be ready
-	awaitPrometheusServices(t, kubeOptions)
-
-	fmt.Println("::::CEREBRAL_DEBUG:::promPodName::", promPodName)
-
-	tunnel := k8s.NewTunnel(kubeOptions, k8s.ResourceTypePod, promPodName, 0, 9090)
+	tunnel := k8s.NewTunnel(kubeOptions, k8s.ResourceTypePod, prometheusPod, 0, 9090)
 	defer tunnel.Close()
 	tunnel.ForwardPort(t)
-
-	// Setup a TLS configuration to submit with the helper, a blank struct is acceptable
-	tlsConfig := tls.Config{}
 
 	// Try to access the prometheus service on the local port, retrying until we get a good response for up to 5 minutes
 	http_helper.HttpGetWithRetryWithCustomValidation(
@@ -85,6 +94,31 @@ func TestPrometheusDeployment(t *testing.T) {
 		60,
 		5*time.Second,
 		verifyPrometheusWelcomePage,
+	)
+
+}
+
+func TestGrafanaDeployment(t *testing.T) {
+	t.Parallel()
+
+	var filter string = "grafana"
+
+	grafanaPod := awaitPods(t, kubeOptions, filter)
+
+	awaitServices(t, kubeOptions, filter)
+
+	tunnel := k8s.NewTunnel(kubeOptions, k8s.ResourceTypePod, grafanaPod, 0, 3000)
+	defer tunnel.Close()
+	tunnel.ForwardPort(t)
+
+	// Try to access the grafana service on the local port, retrying until we get a good response for up to 5 minutes
+	http_helper.HttpGetWithRetryWithCustomValidation(
+		t,
+		fmt.Sprintf("http://%s", tunnel.Endpoint()),
+		&tlsConfig,
+		60,
+		5*time.Second,
+		verifyGrafanaWelcomePage,
 	)
 
 }
