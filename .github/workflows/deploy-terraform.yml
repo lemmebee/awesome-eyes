@@ -18,9 +18,9 @@ jobs:
           go-version: '^1.18.0'
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v1
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
         with:
           terraform_version: 1.1.8
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
       - name: Terraform init
         run: terraform init
 
@@ -47,4 +47,3 @@ jobs:
       #   run: cd test && go test -v
       - name: Terraform destroy
         run: terraform destroy --auto-approve
-        
