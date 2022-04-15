@@ -6,3 +6,7 @@
 .terraform
 *.tfstate
 *.tfstate.backup
+
+# Go
+*.mod
+*.sum
