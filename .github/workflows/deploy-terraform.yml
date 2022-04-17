@@ -9,9 +9,10 @@ on:
 jobs:
   terraform-validate:
     runs-on: ubuntu-latest
-    uses: actions/awesome-eyes@v1
     if: github.event_name == 'pull_request'
     steps:
+      - name: Terraform init
+        uses: actions/awesome-eyes@v1
       - name: Terraform format
         run: terraform fmt -check
       - name: Terraform validate
@@ -22,8 +23,9 @@ jobs:
 
   terraform-deploy:
     runs-on: ubuntu-latest
-    uses: actions/awesome-eyes@v1
     steps:
+      - name: Terraform init
+        uses: actions/awesome-eyes@v1
       - name: Terraform deploy
         run: terraform apply -var "grafana_admin_password=env.PASSWD" --auto-approve
       # - name: Terraform test
