@@ -1,0 +1,55 @@
+name: Terraform Deploy
+
+env:
+  passwd: ${{ secrets.GRAFANA_PASSWORD }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  terraform-validate:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Terraform init
+        uses: ./.github/actions/terraform-init
+
+      - name: Terraform format
+        run: terraform fmt -check
+
+      - name: Terraform validate
+        run: terraform validate -no-color
+
+      - name: Terraform plan
+        run: terraform plan -no-color -var "grafana_admin_password=env.passwd"
+        # continue-on-error: true
+
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Terraform init
+        uses: ./.github/actions/terraform-init
+      
+      - name: Terraform eks test
+        run: cd eks/test && go test -v -timeout 99999s eks_test.go
+        continue-on-error: true
+
+      - name: Terraform deployment test
+        run: cd test && go test -v deployment_test.go
+        continue-on-error: true
+
+      # - name: Terraform deploy
+      #   run: terraform apply -var "grafana_admin_password=env.passwd" --auto-approve
+      
+      - name: Terraform destroy
+        run: terraform destroy --auto-approve
