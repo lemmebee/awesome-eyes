@@ -9,7 +9,7 @@ on:
   push:
     branches:
       - main
-      
+
   pull_request:
     branches:
       - main
@@ -37,6 +37,7 @@ jobs:
 
   terraform-deploy:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
