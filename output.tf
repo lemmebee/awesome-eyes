@@ -1,9 +1,4 @@
-output "prometheus_release_namespace" {
-  description = "Prometheus release namespace"
-  value       = helm_release.prometheus.namespace
-}
-
-output "grafana_release_namespace" {
-  description = "Grafana release namespace"
-  value       = helm_release.grafana.namespace
+output "kubeconfig_filename" {
+  description = "Kubernetes Cluster Kubeconfig Filename"
+  value       = module.eks.kubeconfig_filename
 }
