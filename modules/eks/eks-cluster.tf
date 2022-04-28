@@ -6,7 +6,7 @@ module "eks" {
   cluster_version        = "1.20"
   subnets                = module.vpc.public_subnets
   write_kubeconfig       = true
-  kubeconfig_output_path = "/Users/ehab.shaaban/.kube/config"
+  kubeconfig_output_path = "/home/runner/.kube/config"
   kubeconfig_name        = local.cluster_name
 
   vpc_id = module.vpc.vpc_id
