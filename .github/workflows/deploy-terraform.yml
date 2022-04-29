@@ -34,7 +34,6 @@ jobs:
 
       - name: Terraform plan
         run: terraform plan -no-color -var "grafana_admin_password=env.passwd"
-        # continue-on-error: true
 
   terraform-deploy:
     runs-on: ubuntu-latest
@@ -46,22 +45,12 @@ jobs:
       - name: Terraform init
         uses: ./.github/actions/terraform-init
       
-      - name: Terraform eks test
+      - name: Terraform test
         run: cd test && go test -v -timeout 99999s infra_test.go
         continue-on-error: true
 
-      # - name: Terraform eks deploy
-      #   run: cd eks/ && terraform apply --auto-approve
+      # - name: Terraform deploy
+      #   run: terraform apply --auto-approve
 
-      # - name: Terraform helm releases test
-      #   run: cd test && go test -v deployment_test.go
-      #   continue-on-error: true
-
-      # - name: Terraform helm releases deploy
-      #   run: terraform apply -var "grafana_admin_password=env.passwd" --auto-approve
-      
-      # - name: Terraform helm releases destroy
+      # - name: Terraform destroy
       #   run: terraform destroy --auto-approve
-
-      # - name: Terraform eks destroy
-      #   run: cd eks/ && terraform destroy --auto-approve
