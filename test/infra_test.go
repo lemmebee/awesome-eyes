@@ -42,7 +42,7 @@ func awaitPods(t *testing.T, kubeOptions, filter string) string {
 }
 
 // Returns service name
-func awaitServices(t *testing.T, kubeOptions kubeOptions, filter string) string {
+func awaitServices(t *testing.T, kubeOptions, filter string) string {
 	var serviceName string
 
 	services := k8s.ListServices(t, kubeOptions, v1.ListOptions{FieldSelector: "metadata.namespace=monitoring"})
