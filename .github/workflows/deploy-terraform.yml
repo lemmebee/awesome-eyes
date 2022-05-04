@@ -1,3 +1,7 @@
+# jobs:
+# terraform-validate: fmt, validate, plan
+# terraform-deploy: test, deploy, destroy
+
 name: Terraform Deploy
 
 env:
