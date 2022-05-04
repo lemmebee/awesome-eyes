@@ -16,13 +16,13 @@ import (
 )
 
 var namespace string = "monitoring"
-var kubeOptions *k8s.KubectlOptions = k8s.NewKubectlOptions("", "", namespace)
+var kubeOptions = k8s.NewKubectlOptions("", "", namespace)
 
 // Setup a TLS configuration to submit with the helper, a blank struct is acceptable
 var tlsConfig tls.Config = tls.Config{}
 
 // Returns pod name
-func awaitPods(t *testing.T, kubeOptions *k8s.KubectlOptions, filter string) string {
+func awaitPods(t *testing.T, kubectlOptions, filter string) string {
 	var podName string
 
 	pods := k8s.ListPods(t, kubeOptions, v1.ListOptions{FieldSelector: "status.phase=Running"})
@@ -42,7 +42,7 @@ func awaitPods(t *testing.T, kubeOptions *k8s.KubectlOptions, filter string) str
 }
 
 // Returns service name
-func awaitServices(t *testing.T, kubeOptions *k8s.KubectlOptions, filter string) string {
+func awaitServices(t *testing.T, kubeOptions kubectlOptions, filter string) string {
 	var serviceName string
 
 	services := k8s.ListServices(t, kubeOptions, v1.ListOptions{FieldSelector: "metadata.namespace=monitoring"})
