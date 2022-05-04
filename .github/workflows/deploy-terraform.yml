@@ -44,14 +44,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.3
-        with:
-          version: 2     # default
-          verbose: false # default
-          arch: amd64    # allowed values: amd64, arm64
-          rootdir: ""    # defaults to "PWD"
-          workdir: ""    # defaults to "PWD/unfor19-awscli"
+      - id: install-aws-iam-authenticator
+        run: brew install aws-iam-authenticator
 
       - name: Terraform init
         uses: ./.github/actions/terraform-init
