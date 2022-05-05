@@ -44,12 +44,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - id: install-aws-iam-authenticator
+        run: brew install aws-iam-authenticator
+
+      - id: install-aws-cli
+        run: brew install awscli
+
+      - id: install-kubernetes-cli
+        run: brew install kubernetes-cli
+
+      - id: install-wget
+        run: brew install wget
+
       - name: Terraform init
         uses: ./.github/actions/terraform-init
       
       - name: Terraform test
-        run: cd test && go test -v -timeout 1200s infra_test.go
-        continue-on-error: true
+        run: cd test && go test -v -timeout 2200s infra_test.go
+        # continue-on-error: true
 
       # - name: Terraform deploy
       #   run: terraform apply --auto-approve
