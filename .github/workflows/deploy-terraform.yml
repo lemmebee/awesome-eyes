@@ -47,6 +47,15 @@ jobs:
       - id: install-aws-iam-authenticator
         run: brew install aws-iam-authenticator
 
+      - id: install-aws-cli
+        run: brew install awscli
+
+      - id: install-kubernetes-cli
+        run: brew install kubernetes-cli
+
+      - id: install-wget
+        run: brew install wget
+
       - name: Terraform init
         uses: ./.github/actions/terraform-init
       
