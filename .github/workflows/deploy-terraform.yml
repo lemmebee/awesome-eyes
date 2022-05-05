@@ -61,7 +61,13 @@ jobs:
       
       - name: Terraform test
         run: cd test && go test -v -timeout 2200s infra_test.go
-        # continue-on-error: true
+        continue-on-error: true
+
+      # the log message was removed in 1.21+ versions of kubectl
+      # (and 0.21+ versions of the client-go library).
+      # Updating should resolve this
+      - id: kubectl-version
+        run: kubectl version 
 
       # - name: Terraform deploy
       #   run: terraform apply --auto-approve
