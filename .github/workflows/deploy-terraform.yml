@@ -60,7 +60,7 @@ jobs:
         uses: ./.github/actions/terraform-init
       
       - name: Terraform test
-        run: cd test && go test -v -timeout 1500s infra_test.go
+        run: cd test && go test -v -timeout 2000s infra_test.go
         # continue-on-error: true
 
       # - name: Terraform deploy
