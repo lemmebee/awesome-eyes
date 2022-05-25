@@ -1,6 +1,6 @@
 variable "namespace" {
   type    = string
-  default = "monitoring"
+  default = "awesomeeyes"
 }
 
 variable "grafana_chart" {

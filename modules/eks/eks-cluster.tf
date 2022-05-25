@@ -1,26 +1,45 @@
-module "eks" {
-  source                 = "terraform-aws-modules/eks/aws"
-  version                = "17.24.0"
-  cluster_name           = local.cluster_name
-  cluster_tags           = var.cluster_tags
-  cluster_version        = "1.20"
-  subnets                = module.vpc.public_subnets
-  write_kubeconfig       = true
-  kubeconfig_output_path = "/home/runner/.kube/config"
-  kubeconfig_name        = local.cluster_name
+locals {
+  cluster_name = "awesome-eyes-eks-${random_string.suffix.result}"
+}
 
-  vpc_id = module.vpc.vpc_id
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+}
 
-  workers_group_defaults = {
-    root_volume_type = "gp2"
+resource "aws_eks_cluster" "this" {
+  name     = local.cluster_name
+  version  = var.kubernetes_version
+  role_arn = aws_iam_role.eks.arn
+
+  vpc_config {
+    subnet_ids = aws_subnet.this.*.id
   }
 
-  worker_groups = [
-    {
-      name                          = "worker-group-1"
-      instance_type                 = "t2.small"
-      additional_security_group_ids = [aws_security_group.worker_mgmt.id]
-      asg_desired_capacity          = 1
-    },
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_AmazonEKSClusterPolicy,
   ]
 }
+
+resource "aws_eks_node_group" "this" {
+  cluster_name    = local.cluster_name
+  node_group_name = "ng-${local.cluster_name}"
+  node_role_arn   = aws_iam_role.eks_node.arn
+  subnet_ids      = aws_subnet.this.*.id
+  instance_types  = ["t2.large"]
+
+  # https://stackoverflow.com/questions/72161772/k8s-deployment-is-not-scaling-on-eks-cluster-too-many-pods
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 2
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.eks_AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.eks_AmazonEC2ContainerRegistryReadOnly,
+    aws_eks_cluster.this
+  ]
+}
+
