@@ -43,9 +43,9 @@ jobs:
       - name: Terraform init
         uses: ./.github/actions/setup
       
-      # - name: Terraform test
-      #   run: cd test && go test -v -timeout 2000s infra_test.go
-      #   continue-on-error: true
+      - name: Terraform test
+        run: cd test && go test -v -timeout 2000s infra_test.go
+        continue-on-error: true
 
       # - name: Terraform deploy
       #   run: terraform apply --auto-approve
