@@ -110,8 +110,6 @@ func newClientset(cluster *eks.Cluster) (*kubernetes.Clientset, error) {
 
 	clientcmd.WriteToFile(clientConfig, RecommendedHomeFile)
 
-	fmt.Println("DEBUG::::RecommendedHomeFile::::", RecommendedHomeFile)
-
 	return clientset, nil
 }
 
