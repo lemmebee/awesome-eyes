@@ -49,7 +49,7 @@ jobs:
         # continue-on-error: true
 
       - name: Terraform deploy
-        run: terraform apply --auto-approve
+        run: TF_VAR_grafana_admin_password=${{ secrets.GRAFANA_PASSWORD }} terraform apply --auto-approve
 
       - name: Terraform destroy
-        run: terraform destroy --auto-approve
+        run: TF_VAR_grafana_admin_password=${{ secrets.GRAFANA_PASSWORD }} terraform destroy --auto-approve
