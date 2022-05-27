@@ -31,12 +31,14 @@ import (
 	"sigs.k8s.io/aws-iam-authenticator/pkg/token"
 )
 
-var namespace string = "awesomeeyes"
+const namespace string = "awesomeeyes"
+
 var kubeOptions *k8s.KubectlOptions = k8s.NewKubectlOptions("", "", namespace)
 
 // Setup a TLS configuration to submit with the helper, a blank struct is acceptable
 var tlsConfig tls.Config = tls.Config{}
 
+// Generate clientset to authenticate k8s cluster
 // https://stackoverflow.com/questions/60547409/unable-to-obtain-kubeconfig-of-an-aws-eks-cluster-in-go-code/60573982#60573982
 func newClientset(cluster *eks.Cluster) (*kubernetes.Clientset, error) {
 	const (
@@ -45,8 +47,6 @@ func newClientset(cluster *eks.Cluster) (*kubernetes.Clientset, error) {
 	)
 
 	var RecommendedHomeFile = path.Join(homedir.HomeDir(), RecommendedHomeDir, RecommendedFileName)
-
-	// log.Printf("%+v", cluster)
 
 	gen, err := token.NewGenerator(true, false)
 	if err != nil {
@@ -116,6 +116,7 @@ func newClientset(cluster *eks.Cluster) (*kubernetes.Clientset, error) {
 // Returns running pods
 func getRunningPods(clientset *kubernetes.Clientset, result *eks.DescribeClusterOutput) *corev1.PodList {
 
+	// Use clientset to interact with k8s cluster
 	// https://github.com/kubernetes/client-go/blob/master/examples/out-of-cluster-client-configuration/main.go#L64
 	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{FieldSelector: "status.phase=Running"})
 	if err != nil {
