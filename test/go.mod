@@ -1,4 +1,4 @@
-module github.com/ehabshaaban/deploy-nginx
+module github.com/ehabshaaban/awesome-eyes
 
 go 1.18
 
