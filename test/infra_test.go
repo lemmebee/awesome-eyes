@@ -8,6 +8,7 @@ import (
 	"log"
 	"path"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -46,7 +47,7 @@ func newClientset(cluster *eks.Cluster) (*kubernetes.Clientset, error) {
 		RecommendedFileName = "config"
 	)
 
-	var RecommendedHomeFile = path.Join(homedir.HomeDir(), RecommendedHomeDir, RecommendedFileName)
+	RecommendedHomeFile := path.Join(homedir.HomeDir(), RecommendedHomeDir, RecommendedFileName)
 
 	gen, err := token.NewGenerator(true, false)
 	if err != nil {
@@ -128,7 +129,8 @@ func getRunningPods(clientset *kubernetes.Clientset, result *eks.DescribeCluster
 }
 
 // Wait services
-func waitServices(t *testing.T, clientset *kubernetes.Clientset, result *eks.DescribeClusterOutput) {
+func waitServices(wg *sync.WaitGroup, t *testing.T, clientset *kubernetes.Clientset, result *eks.DescribeClusterOutput) {
+	defer wg.Done()
 
 	svcs, err := clientset.CoreV1().Services(namespace).List(context.TODO(), v1.ListOptions{FieldSelector: "metadata.namespace=" + namespace})
 	if err != nil {
@@ -153,7 +155,8 @@ func verifyPrometheus(statusCode int, body string) bool {
 	return strings.Contains(body, "Prometheus Time Series Collection and Processing Server")
 }
 
-func ValidatePrometheusDeployment(t *testing.T, clientset *kubernetes.Clientset, result *eks.DescribeClusterOutput) {
+func ValidatePrometheusDeployment(wg *sync.WaitGroup, t *testing.T, clientset *kubernetes.Clientset, result *eks.DescribeClusterOutput) {
+	defer wg.Done()
 
 	pods := getRunningPods(clientset, result)
 
@@ -162,9 +165,7 @@ func ValidatePrometheusDeployment(t *testing.T, clientset *kubernetes.Clientset,
 		// Wait all deployed pods to be available and ready
 		k8s.WaitUntilPodAvailable(t, kubeOptions, pods.Items[i].Name, 60, 1*time.Second)
 
-		var filter string = "server"
-
-		if strings.Contains(pods.Items[i].Name, filter) {
+		if strings.Contains(pods.Items[i].Name, "server") {
 
 			log.Printf("Prometheus server: %v", pods.Items[i].Name)
 
@@ -194,7 +195,8 @@ func verifyGrafana(statusCode int, body string) bool {
 	return strings.Contains(body, "Grafana")
 }
 
-func ValidateGrafanaDeployment(t *testing.T, clientset *kubernetes.Clientset, result *eks.DescribeClusterOutput) {
+func ValidateGrafanaDeployment(wg *sync.WaitGroup, t *testing.T, clientset *kubernetes.Clientset, result *eks.DescribeClusterOutput) {
+	defer wg.Done()
 
 	pods := getRunningPods(clientset, result)
 
@@ -203,9 +205,7 @@ func ValidateGrafanaDeployment(t *testing.T, clientset *kubernetes.Clientset, re
 		// Wait all deployed pods to be available and ready
 		k8s.WaitUntilPodAvailable(t, kubeOptions, pods.Items[i].Name, 60, 1*time.Second)
 
-		var filter string = "grafana"
-
-		if strings.Contains(pods.Items[i].Name, filter) {
+		if strings.Contains(pods.Items[i].Name, "grafana") {
 
 			log.Printf("Grafana server: %v", pods.Items[i].Name)
 
@@ -260,10 +260,16 @@ func TestInfrastructure(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	waitServices(t, clientset, result)
+	wg := new(sync.WaitGroup)
 
-	ValidatePrometheusDeployment(t, clientset, result)
+	wg.Add(1)
 
-	ValidateGrafanaDeployment(t, clientset, result)
+	go waitServices(wg, t, clientset, result)
+
+	go ValidatePrometheusDeployment(wg, t, clientset, result)
+
+	go ValidateGrafanaDeployment(wg, t, clientset, result)
+
+	wg.Wait()
 
 }
