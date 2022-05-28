@@ -1,7 +1,7 @@
 name: Terraform Deploy
 
 env:
-  passwd: ${{ secrets.GRAFANA_PASSWORD }}
+  PASSWD: ${{ secrets.GRAFANA_PASSWORD }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -11,6 +11,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
 
 
 jobs:
@@ -43,12 +44,12 @@ jobs:
       - name: Terraform init
         uses: ./.github/actions/setup
       
-      # - name: Terraform test
-      #   run: cd test && go test -v -timeout 2000s infra_test.go
-      #   continue-on-error: true
+      - name: Terraform test
+        run: cd test && go test -v -timeout 3000s infra_test.go
+        continue-on-error: true
 
-      # - name: Terraform deploy
-      #   run: terraform apply --auto-approve
+      - name: Terraform deploy
+        run: TF_VAR_grafana_admin_password=${{ env.PASSWD }} terraform apply --auto-approve
 
-      # - name: Terraform destroy
-      #   run: terraform destroy --auto-approve
+      - name: Terraform destroy
+        run: TF_VAR_grafana_admin_password=${{ env.PASSWD }} terraform destroy --auto-approve
