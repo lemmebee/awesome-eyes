@@ -262,7 +262,7 @@ func TestInfrastructure(t *testing.T) {
 
 	wg := new(sync.WaitGroup)
 
-	wg.Add(1)
+	wg.Add(3)
 
 	go waitServices(wg, t, clientset, result)
 
