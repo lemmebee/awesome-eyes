@@ -22,8 +22,8 @@ resource "aws_eks_cluster" "this" {
 }
 
 resource "aws_eks_node_group" "this" {
-  cluster_name    = local.cluster_name
-  node_group_name = "ng-${local.cluster_name}"
+  cluster_name    = aws_eks_cluster.this.name
+  node_group_name = "ng-${aws_eks_cluster.this.name}"
   node_role_arn   = aws_iam_role.eks_node.arn
   subnet_ids      = aws_subnet.this.*.id
   instance_types  = ["t2.large"]
@@ -39,7 +39,7 @@ resource "aws_eks_node_group" "this" {
     aws_iam_role_policy_attachment.eks_AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.eks_AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.eks_AmazonEC2ContainerRegistryReadOnly,
-    # aws_eks_cluster.this
+    aws_eks_cluster.this,
   ]
 }
 
