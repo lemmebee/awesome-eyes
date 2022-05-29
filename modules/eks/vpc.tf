@@ -30,7 +30,8 @@ resource "aws_subnet" "this" {
   }
 
   depends_on = [
-    aws_vpc.this
+    aws_vpc.this,
+    aws_internet_gateway.this
   ]
 }
 
