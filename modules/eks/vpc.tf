@@ -28,11 +28,6 @@ resource "aws_subnet" "this" {
   tags = {
     Name = local.tag
   }
-
-  depends_on = [
-    aws_vpc.this,
-    aws_internet_gateway.this
-  ]
 }
 
 resource "aws_internet_gateway" "this" {
@@ -41,10 +36,6 @@ resource "aws_internet_gateway" "this" {
   tags = {
     Name = local.tag
   }
-
-  depends_on = [
-    aws_vpc.this
-  ]
 }
 
 resource "aws_route_table" "this" {
@@ -54,12 +45,6 @@ resource "aws_route_table" "this" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.this.id
   }
-
-  depends_on = [
-    aws_vpc.this,
-    aws_subnet.this,
-    aws_internet_gateway.this
-  ]
 }
 
 resource "aws_route_table_association" "this" {
@@ -67,8 +52,4 @@ resource "aws_route_table_association" "this" {
 
   subnet_id      = aws_subnet.this[count.index].id
   route_table_id = aws_route_table.this.id
-
-  depends_on = [
-    aws_route_table.this
-  ]
 }
