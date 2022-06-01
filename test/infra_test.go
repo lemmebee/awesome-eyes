@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
+	"os/exec"
 	"path"
 	"strings"
 	"sync"
@@ -269,6 +270,24 @@ func TestInfrastructure(t *testing.T) {
 	go ValidatePrometheusDeployment(wg, t, clientset, result)
 
 	go ValidateGrafanaDeployment(wg, t, clientset, result)
+
+	pathToShFile := path.Join(homedir.HomeDir(), "awesome-eyes/scripts/delete_network_interfaces.sh")
+	pathToStateFile := path.Join(homedir.HomeDir(), "awesome-eyes/test/terraform.tfstate")
+
+	cmd := exec.Command(pathToShFile, pathToStateFile)
+
+	fmt.Println("DEUBG:::CEREBRAL:::cmd", cmd)
+	fmt.Println("DEUBG:::CEREBRAL:::pathToShFile", pathToShFile)
+	fmt.Println("DEUBG:::CEREBRAL:::pathToStateFile", pathToStateFile)
+
+	stdout, err := cmd.Output()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Print(string(stdout))
 
 	wg.Wait()
 
