@@ -8,9 +8,9 @@ output "cluster_name" {
   value       = module.eks.cluster_name
 }
 
-output "region" {
-  description = "aws region"
-  value       = var.region
+output "node_group_name" {
+  description = "Eks node group name"
+  value       = module.eks.node_group_name
 }
 
 output "prometheus_release_namespace" {
