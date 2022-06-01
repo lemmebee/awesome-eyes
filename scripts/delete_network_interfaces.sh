@@ -7,7 +7,7 @@ aws eks delete-nodegroup \
 --cluster-name `terraform output -raw -state $stateFilePath cluster_name` \
 --nodegroup-name `terraform output -raw -state $stateFilePath node_group_name`
 
-sleep 200
+# sleep 200
 
 eniAttachIds=$(aws ec2 describe-network-interfaces | grep -o '"AttachmentId": "[^"]*' | grep -o '[^"]*$')
 for eniAttachId in $eniAttachIds; do echo "Deleting $eniAttachId..."; aws ec2 detach-network-interface --attachment-id $eniAttachId; done
