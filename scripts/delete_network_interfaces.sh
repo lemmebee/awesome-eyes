@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Running delete_network_interfaces.sh ...."
 
 stateFilePath=$1
 
