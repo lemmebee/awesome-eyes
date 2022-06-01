@@ -1,3 +1,8 @@
+output "region" {
+  description = "aws region"
+  value       = module.eks.region
+}
+
 output "cluster_endpoint" {
   description = "eks cluster endpoint"
   value       = data.aws_eks_cluster.cluster.endpoint
