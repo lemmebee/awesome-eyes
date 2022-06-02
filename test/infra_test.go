@@ -276,10 +276,6 @@ func TestInfrastructure(t *testing.T) {
 
 	cmd := exec.Command(pathToShFile, pathToStateFile)
 
-	fmt.Println("DEUBG:::CEREBRAL:::cmd", cmd)
-	fmt.Println("DEUBG:::CEREBRAL:::pathToShFile", pathToShFile)
-	fmt.Println("DEUBG:::CEREBRAL:::pathToStateFile", pathToStateFile)
-
 	stdout, err := cmd.Output()
 
 	if err != nil {
