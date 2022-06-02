@@ -1,0 +1,34 @@
+name: 'Setup'
+runs:
+  using: "composite"
+  steps:
+    - name: Install aws iam authenticator
+      shell: bash
+      run: brew install aws-iam-authenticator
+
+    - name: Install awscli
+      shell: bash
+      run: brew install awscli
+
+    - name: Install kubectl
+      shell: bash
+      run: brew install kubernetes-cli
+
+    - name: Install wget
+      shell: bash
+      run: brew install wget
+
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '^1.18.0'
+
+    - name: Setup terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ">= 1.1.2"
+        terraform_wrapper: false
+        
+    - name: Terraform init
+      shell: bash
+      run: terraform init
