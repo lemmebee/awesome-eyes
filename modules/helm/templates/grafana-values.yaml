@@ -1,0 +1,16 @@
+replicas: ${replicas}
+
+admin:
+  existingSecret: "${admin_existing_secret}"
+  userKey: ${admin_user_key}
+  passwordKey: ${admin_password_key}
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://${prometheus_svc}
+      access: proxy
+      isDefault: true

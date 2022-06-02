@@ -1,9 +1,7 @@
-variable "kube_config" {
+variable "region" {
   type    = string
-  default = "~/.kube/config"
+  default = "eu-west-3"
 }
-
-variable "namespace" {
-  type    = string
-  default = "monitoring"
+variable "grafana_admin_password" {
+  type = string
 }
