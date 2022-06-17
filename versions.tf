@@ -1,4 +1,10 @@
 terraform {
+    backend "s3" {
+    bucket         = "awesome-eyes-terrafrom-state"
+    key            = "terraform.tfstate"
+    region         = "eu-west-3"
+    dynamodb_table = "awesome-eyes-locks"
+  }
 
   required_providers {
     aws = {
@@ -18,12 +24,12 @@ terraform {
 
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.0.1"
+      version = "2.11.0"
     }
 
     helm = {
       source  = "hashicorp/helm"
-      version = "2.0.1"
+      version = "2.5.1"
     }
 
   }
