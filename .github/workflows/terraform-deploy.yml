@@ -44,12 +44,12 @@ jobs:
       - name: Terraform init
         uses: ./.github/actions/setup
       
-      - name: Terraform test
-        run: cd test && go test -v -timeout 3000s infra_test.go
-        continue-on-error: true
+      # - name: Terraform test
+      #  run: cd test && go test -v -timeout 3000s infra_test.go
+      #  continue-on-error: true
 
-      # - name: Terraform deploy
-      #   run: TF_VAR_grafana_admin_password=${{ env.PASSWD }} terraform apply --auto-approve
+      - name: Terraform deploy
+        run: TF_VAR_grafana_admin_password=${{ env.PASSWD }} terraform apply --auto-approve
 
       # - name: Terraform destroy
       #   run: TF_VAR_grafana_admin_password=${{ env.PASSWD }} terraform destroy --auto-approve
