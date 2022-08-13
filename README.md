@@ -1,7 +1,7 @@
 # awesome-eyes
 awesomeeyes is deploying grafana and prometheus helm releases on eks cluster
 
-
+![alt text](https://github.com/ehabshaaban/awesome-eyes/blob/main/infrastructure.png)
 
 ## Setup
 
@@ -35,7 +35,7 @@ Otherwise, you can comment this part and have terraform state locally
 ```
 cd test && go test -v -timeout 3000s infra_test.go
 ```
-Grafana password is initialized within test
+Grafana password is initialized within test \
 New kubernetes clientset is being generated within test to authenticate cluster connection
 
 ## Destroy
@@ -54,7 +54,7 @@ Terraform script will do the following:
 
 ## Github Workflow
 
-On every push for any branch will trigger ```deploy-terraform``` it will test, deploy then destroy (Will be locked only for main)
+On every push for any branch will trigger ```deploy-terraform``` it will test, deploy then destroy (Will be locked only for main) \
 On main and develop pull requests will trigger ```validate-terraform``` it will format, validate and plan
 
 Environment variables are hooked up as secret like the following:
