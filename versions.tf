@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket         = "awesome-eyes-terrafrom-state"
+    bucket         = "awesome-eyes-tfstate"
     key            = "terraform.tfstate"
     region         = "eu-west-3"
     dynamodb_table = "awesome-eyes-locks"
